@@ -2,7 +2,7 @@ const puppeteer = require("puppeteer");
 const fetch = require("node-fetch");
 
 // Ton webhook Google Apps Script ici :
-const WEBHOOK_URL = "TON_WEBHOOK_URL";
+const WEBHOOK_URL = "https://www.tucasa.com/alquiler/locales-comerciales/las-palmas/?r=&idz=0035&p1=200&p2=1200";
 
 (async () => {
   const browser = await puppeteer.launch({
