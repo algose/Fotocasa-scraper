@@ -1,12 +1,19 @@
 {
   "name": "fotocasa-scraper",
   "version": "1.0.0",
-  "description": "Scraper Fotocasa automatiquement",
+  "description": "Scraper automatique pour Fotocasa déployé sur Railway",
   "main": "index.js",
   "scripts": {
     "start": "node index.js"
   },
   "dependencies": {
-    "puppeteer": "^22.8.2"
-  }
+    "axios": "^1.6.8",
+    "puppeteer": "^21.11.0"
+  },
+  "engines": {
+    "node": "18.x"
+  },
+  "keywords": ["fotocasa", "scraper", "puppeteer", "axios", "railway"],
+  "author": "Maxi",
+  "license": "MIT"
 }
