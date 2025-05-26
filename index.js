@@ -1,4 +1,8 @@
 const puppeteer = require("puppeteer");
+const fetch = require("node-fetch");
+
+// Ton webhook Google Apps Script ici :
+const WEBHOOK_URL = "TON_WEBHOOK_URL";
 
 (async () => {
   const browser = await puppeteer.launch({
@@ -15,38 +19,47 @@ const puppeteer = require("puppeteer");
   });
 
   const page = await browser.newPage();
-  await page.goto("https://www.fotocasa.es/es/alquiler/local/las-palmas-de-gran-canaria/todas-las-zonas/l");
+  await page.goto("https://www.fotocasa.es/es/alquiler/local/las-palmas-de-gran-canaria/todas-las-zonas/l", {
+    waitUntil: "domcontentloaded"
+  });
 
   const listings = await page.evaluate(() => {
     const articles = document.querySelectorAll("article.re-Card");
-    const data = [];
+    const now = new Date().toLocaleDateString("es-ES");
 
-    articles.forEach(article => {
-      const surfaceText = article.querySelector(".re-CardFeaturesWithIcons-feature-text")?.innerText || "";
-      const surface = parseInt(surfaceText.replace(/\D/g, ""));
-      const priceText = article.querySelector(".re-CardPrice")?.innerText || "";
-      const price = parseInt(priceText.replace(/[^\d]/g, ""));
-      const address = article.querySelector(".re-Card-title")?.innerText || "";
-      const linkSuffix = article.querySelector("a")?.getAttribute("href") || "";
-      const link = "https://www.fotocasa.es" + linkSuffix;
-      const date = new Date().toLocaleDateString("es-ES");
+    return Array.from(articles).map(card => {
+      const surfaceText = card.querySelector(".re-CardFeaturesWithIcons-feature-text")?.innerText || "";
+      const surface = parseInt(surfaceText.replace(/\D/g, "")) || 0;
+      const priceText = card.querySelector(".re-CardPrice")?.innerText || "";
+      const price = parseInt(priceText.replace(/[^\d]/g, "")) || 0;
+      const address = card.querySelector(".re-Card-title")?.innerText || "Non précisé";
+      const link = "https://www.fotocasa.es" + (card.querySelector("a")?.getAttribute("href") || "");
 
-      if (price && link) {
-        data.push({
-          ville: "Las Palmas",
-          surface,
-          prix: price,
-          adresse: address,
-          lien: link,
-          source: "fotocasa",
-          date
-        });
-      }
+      const score = surface && price ? Math.round((surface / price) * 1000) : 0;
+
+      return {
+        ville: "Las Palmas",
+        surface,
+        prix: price,
+        adresse: address,
+        lien: link,
+        source: "fotocasa",
+        date: now,
+        status: "",
+        score,
+        mémoire: "" // sera géré par Apps Script ou feuille tampon
+      };
     });
-
-    return data;
   });
 
-  console.log(JSON.stringify(listings, null, 2));
+  console.log(`Envoi de ${listings.length} résultats à Google Sheets...`);
+
+  const res = await fetch(WEBHOOK_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(listings)
+  });
+
+  console.log("Réponse Webhook :", await res.text());
   await browser.close();
 })();
