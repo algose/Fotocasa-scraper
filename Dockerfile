@@ -1,6 +1,6 @@
-FROM node:18-slim
+FROM node:20-slim
 
-# Installe les dépendances système pour Chromium
+# Install system dependencies for Puppeteer (incl. libdrm, chrome, etc.)
 RUN apt-get update && apt-get install -y \
     wget \
     ca-certificates \
@@ -18,18 +18,16 @@ RUN apt-get update && apt-get install -y \
     libxcomposite1 \
     libxdamage1 \
     libxrandr2 \
+    libxss1 \
+    libxtst6 \
+    libdrm2 \
     xdg-utils \
     --no-install-recommends \
-    && apt-get clean && rm -rf /var/lib/apt/lists/*
+ && apt-get clean \
+ && rm -rf /var/lib/apt/lists/*
 
-# Crée un dossier pour le code
 WORKDIR /app
-
-# Copie les fichiers dans l'image
 COPY . .
-
-# Installe les dépendances Node
 RUN npm install
 
-# Lance le script
 CMD ["node", "index.js"]
