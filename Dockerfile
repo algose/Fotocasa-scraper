@@ -1,40 +1,35 @@
 FROM node:18-slim
 
-# Installe les dépendances nécessaires à Puppeteer
+# Installe les dépendances système pour Chromium
 RUN apt-get update && apt-get install -y \
-  wget \
-  ca-certificates \
-  fonts-liberation \
-  libappindicator3-1 \
-  libasound2 \
-  libatk-bridge2.0-0 \
-  libatk1.0-0 \
-  libcups2 \
-  libdbus-1-3 \
-  libgdk-pixbuf2.0-0 \
-  libnspr4 \
-  libnss3 \
-  libx11-xcb1 \
-  libxcomposite1 \
-  libxdamage1 \
-  libxrandr2 \
-  xdg-utils \
-  libu2f-udev \
-  libvulkan1 \
-  libxss1 \
-  libxtst6 \
-  --no-install-recommends && \
-  apt-get clean && \
-  rm -rf /var/lib/apt/lists/*
+    wget \
+    ca-certificates \
+    fonts-liberation \
+    libappindicator3-1 \
+    libasound2 \
+    libatk-bridge2.0-0 \
+    libatk1.0-0 \
+    libcups2 \
+    libdbus-1-3 \
+    libgdk-pixbuf2.0-0 \
+    libnspr4 \
+    libnss3 \
+    libx11-xcb1 \
+    libxcomposite1 \
+    libxdamage1 \
+    libxrandr2 \
+    xdg-utils \
+    --no-install-recommends \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Crée un dossier de travail
+# Crée un dossier pour le code
 WORKDIR /app
 
-# Copie les fichiers du projet
+# Copie les fichiers dans l'image
 COPY . .
 
 # Installe les dépendances Node
 RUN npm install
 
-# Lance ton script automatiquement
+# Lance le script
 CMD ["node", "index.js"]
